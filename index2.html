@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>A* Search on a Grid</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f9ff;
+    color: #18324a;
+}
+
+header {
+    background: linear-gradient(135deg, #dceeff, #ffffff);
+    padding: 70px 8%;
+    border-bottom: 1px solid #c9e2f8;
+}
+
+.label {
+    color: #1677c8;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+h1 {
+    font-size: clamp(40px, 7vw, 70px);
+    margin: 15px 0;
+    color: #124b7a;
+}
+
+header p {
+    max-width: 800px;
+    font-size: 19px;
+    line-height: 1.7;
+    color: #52718c;
+}
+
+.container {
+    max-width: 1150px;
+    margin: auto;
+    padding: 40px 8% 80px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+}
+
+.card {
+    background: white;
+    border: 1px solid #c9e2f8;
+    border-radius: 20px;
+    padding: 27px;
+    box-shadow: 0 8px 25px rgba(40, 120, 180, 0.08);
+}
+
+.full {
+    grid-column: 1 / -1;
+}
+
+.tag {
+    color: #1680d1;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+h2 {
+    color: #155986;
+    margin: 9px 0 13px;
+    font-size: 28px;
+}
+
+h3 {
+    color: #2876a8;
+}
+
+p, li {
+    color: #52718c;
+    line-height: 1.7;
+}
+
+.note {
+    background: #eef8ff;
+    border-left: 4px solid #258bd0;
+    padding: 14px;
+    border-radius: 8px;
+    color: #45677f;
+}
+
+.steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.step {
+    background: #f3faff;
+    border: 1px solid #d0e8fa;
+    border-radius: 14px;
+    padding: 17px;
+}
+
+.step b {
+    color: #1677c8;
+    display: block;
+    margin-bottom: 7px;
+}
+
+.code {
+    background: #eef7ff;
+    border: 1px solid #cce4f7;
+    border-radius: 12px;
+    padding: 18px;
+    overflow-x: auto;
+    color: #245b80;
+    line-height: 1.6;
+}
+
+.demo {
+    background: #f4faff;
+    border: 1px solid #cde6f8;
+    border-radius: 16px;
+    padding: 20px;
+}
+
+button {
+    background: #2186ca;
+    color: white;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 9px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #176da9;
+}
+
+input {
+    padding: 11px;
+    border: 1px solid #b9d8ed;
+    border-radius: 9px;
+    margin-right: 8px;
+}
+
+.result {
+    margin-top: 15px;
+    color: #28709c;
+    font-weight: bold;
+}
+
+.footer {
+    text-align: center;
+    padding: 30px;
+    border-top: 1px solid #c9e2f8;
+    color: #6c8da5;
+}
+
+@media(max-width: 760px) {
+    .grid,
+    .steps {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="label">💙 Algorithms · Student Technical Blog</div>
+
+    <h1>🧭 A* Search on a Grid</h1>
+
+    <p>
+        Understanding how the A* search algorithm finds an efficient path
+        between two points while avoiding obstacles on a grid.
+    </p>
+</header>
+
+<div class="container">
+
+<div class="grid">
+
+<!-- INTRODUCTION -->
+<article class="card full">
+    <span class="tag">🌊 Introduction</span>
+
+    <h2>What is A* Search?</h2>
+
+    <p>
+        A* (A-star) is a path-finding algorithm used to find a suitable
+        route between a starting point and a target point. It combines
+        the cost of reaching a location with an estimate of the remaining
+        distance to the target.
+    </p>
+
+    <div class="note">
+        A* is commonly used when we need to find a path while considering
+        both the distance already travelled and the estimated distance
+        remaining.
+    </div>
+</article>
+
+
+<!-- GRID -->
+<article class="card">
+    <span class="tag">🧩 Core Idea</span>
+
+    <h2>Searching on a Grid</h2>
+
+    <p>
+        A grid can represent a map or environment. Each cell represents
+        a possible position. Some cells are free while others contain
+        obstacles that cannot be crossed.
+    </p>
+
+    <p>
+        The algorithm starts from the source cell and explores possible
+        neighbouring cells until it reaches the destination.
+    </p>
+</article>
+
+
+<!-- FORMULA -->
+<article class="card">
+    <span class="tag">📐 Evaluation Function</span>
+
+    <h2>The A* Formula</h2>
+
+    <p>
+        A* evaluates each position using the following function:
+    </p>
+
+    <div class="code">
+f(n) = g(n) + h(n)
+    </div>
+
+    <p>
+        <b>g(n)</b> = actual cost from the starting point.
+    </p>
+
+    <p>
+        <b>h(n)</b> = estimated cost from the current point to the goal.
+    </p>
+
+    <p>
+        <b>f(n)</b> = total estimated cost.
+    </p>
+</article>
+
+
+<!-- STEPS -->
+<article class="card full">
+    <span class="tag">⚙️ Algorithm</span>
+
+    <h2>How A* Works</h2>
+
+    <div class="steps">
+
+        <div class="step">
+            <b>1 · Start</b>
+            Begin from the starting cell.
+        </div>
+
+        <div class="step">
+            <b>2 · Evaluate</b>
+            Calculate the f, g and h values.
+        </div>
+
+        <div class="step">
+            <b>3 · Explore</b>
+            Select the most promising cell.
+        </div>
+
+        <div class="step">
+            <b>4 · Reach Goal</b>
+            Continue until the destination is reached.
+        </div>
+
+    </div>
+</article>
+
+
+<!-- OBSTACLES -->
+<article class="card">
+    <span class="tag">🚧 Obstacles</span>
+
+    <h2>Obstacle Avoidance</h2>
+
+    <p>
+        Obstacles are represented by blocked cells in the grid.
+        A* ignores these cells while searching for a valid route.
+    </p>
+
+    <p>
+        This allows the algorithm to find a path around walls and
+        other blocked areas instead of moving directly through them.
+    </p>
+</article>
+
+
+<!-- HEURISTIC -->
+<article class="card">
+    <span class="tag">💡 Heuristic</span>
+
+    <h2>Manhattan Distance</h2>
+
+    <p>
+        For a grid where movement is allowed horizontally and vertically,
+        Manhattan distance can be used as the heuristic.
+    </p>
+
+    <div class="code">
+h(n) = |x₁ - x₂| + |y₁ - y₂|
+    </div>
+
+    <p>
+        It estimates how far the current cell is from the target.
+    </p>
+</article>
+
+
+<!-- DEMO -->
+<article class="card full">
+    <span class="tag">🎯 Interactive Demo</span>
+
+    <h2>Try a Simple Path Calculation</h2>
+
+    <p>
+        Enter the start and goal coordinates to calculate the Manhattan
+        distance between them.
+    </p>
+
+    <div class="demo">
+
+        <input id="x1" type="number" placeholder="Start X">
+        <input id="y1" type="number" placeholder="Start Y">
+
+        <br><br>
+
+        <input id="x2" type="number" placeholder="Goal X">
+        <input id="y2" type="number" placeholder="Goal Y">
+
+        <button onclick="calculateDistance()">Calculate</button>
+
+        <div id="result" class="result"></div>
+
+    </div>
+</article>
+
+
+<!-- EXAMPLE -->
+<article class="card full">
+    <span class="tag">🗺️ Example</span>
+
+    <h2>Simple Grid Example</h2>
+
+    <p>
+        Suppose the starting point is (1, 1) and the destination is
+        (5, 4). The Manhattan distance is:
+    </p>
+
+    <div class="code">
+h(n) = |1 - 5| + |1 - 4|
+     = 4 + 3
+     = 7
+    </div>
+
+    <p>
+        The algorithm uses this estimated value along with the actual
+        path cost to decide which cell should be explored next.
+    </p>
+</article>
+
+
+<!-- APPLICATIONS -->
+<article class="card">
+    <span class="tag">🌐 Applications</span>
+
+    <h2>Where is A* Used?</h2>
+
+    <ul>
+        <li>Game character navigation</li>
+        <li>Robot path planning</li>
+        <li>Maps and route planning</li>
+        <li>Grid-based simulations</li>
+        <li>Obstacle avoidance systems</li>
+    </ul>
+</article>
+
+
+<!-- ADVANTAGES -->
+<article class="card">
+    <span class="tag">✨ Advantages</span>
+
+    <h2>Benefits of A*</h2>
+
+    <ul>
+        <li>Uses both actual and estimated cost.</li>
+        <li>Can avoid blocked areas.</li>
+        <li>Works well on grid-based environments.</li>
+        <li>Can find an efficient path.</li>
+        <li>Useful for many navigation problems.</li>
+    </ul>
+</article>
+
+
+<!-- CONCLUSION -->
+<article class="card full">
+    <span class="tag">💙 Conclusion</span>
+
+    <h2>Key Takeaway</h2>
+
+    <p>
+        A* Search is an important path-finding algorithm that combines
+        the distance already travelled with an estimated distance to the
+        destination. By considering obstacles and choosing promising
+        paths, it can efficiently solve many grid-based navigation
+        problems.
+    </p>
+</article>
+
+</div>
+</div>
+
+<footer class="footer">
+    💙 Algorithms Blog · A* Search on a Grid
+</footer>
+
+
+<script>
+
+function calculateDistance() {
+
+    let x1 = Number(document.getElementById("x1").value);
+    let y1 = Number(document.getElementById("y1").value);
+
+    let x2 = Number(document.getElementById("x2").value);
+    let y2 = Number(document.getElementById("y2").value);
+
+    if (
+        document.getElementById("x1").value === "" ||
+        document.getElementById("y1").value === "" ||
+        document.getElementById("x2").value === "" ||
+        document.getElementById("y2").value === ""
+    ) {
+        document.getElementById("result").textContent =
+            "Please enter all four coordinates.";
+        return;
+    }
+
+    let distance =
+        Math.abs(x1 - x2) +
+        Math.abs(y1 - y2);
+
+    document.getElementById("result").textContent =
+        "Manhattan distance = " + distance;
+}
+
+</script>
+
+</body>
+</html>
