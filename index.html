@@ -1,477 +1,1181 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>A* Search on a Grid</title>
+<title>A* Pathfinder | Intelligent Search Lab</title>
+<meta name="description" content="An interactive student blog exploring the A* search algorithm, heuristic functions, shortest paths and obstacle avoidance.">
 
 <style>
-* {
-    box-sizing: border-box;
+:root {
+  --navy: #10264a;
+  --blue: #2463eb;
+  --sky: #eaf3ff;
+  --pale: #f5f9ff;
+  --cyan: #58c8f5;
+  --text: #24344d;
+  --muted: #70819a;
+  --border: #dce7f5;
+  --white: #ffffff;
+  --green: #19a77a;
+  --orange: #ffb454;
 }
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 90px; }
 
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f9ff;
-    color: #243b53;
+  margin: 0;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  color: var(--text);
+  background: var(--white);
+  line-height: 1.7;
 }
 
-header {
-    background: linear-gradient(135deg, #dceeff, #ffffff);
-    padding: 60px 8%;
-    text-align: center;
+a { color: inherit; text-decoration: none; }
+
+button { font: inherit; cursor: pointer; }
+
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 15px 7%;
+  background: rgba(255,255,255,.94);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
 }
 
-header h1 {
-    font-size: 48px;
-    color: #145da0;
-    margin-bottom: 15px;
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--navy);
+  font-weight: 850;
+  font-size: 17px;
+  letter-spacing: -.4px;
 }
 
-header p {
-    font-size: 18px;
-    color: #526777;
-    max-width: 800px;
-    margin: auto;
-    line-height: 1.7;
+.logo-mark {
+  display: grid;
+  place-items: center;
+  width: 37px;
+  height: 37px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2463eb, #56b9f5);
+  color: white;
+  box-shadow: 0 5px 15px #2463eb30;
 }
 
-.container {
-    max-width: 1100px;
-    margin: auto;
-    padding: 40px 6%;
+.navlinks {
+  display: flex;
+  gap: 23px;
+  align-items: center;
+  font-size: 13px;
+  color: #51627b;
+  font-weight: 650;
 }
 
-.card {
-    background: white;
-    border-radius: 18px;
-    padding: 28px;
-    margin-bottom: 25px;
-    border: 1px solid #d6e8f7;
-    box-shadow: 0 6px 18px rgba(30, 90, 130, 0.08);
+.navlinks a:hover { color: var(--blue); }
+
+.nav-cta {
+  padding: 9px 15px;
+  border-radius: 10px;
+  background: var(--blue);
+  color: white !important;
 }
 
-.card h2 {
-    color: #145da0;
-    margin-top: 0;
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 82px 7% 75px;
+  background:
+    radial-gradient(ellipse at 88% 18%, #cbe5ff 0, transparent 30%),
+    radial-gradient(ellipse at 5% 100%, #e7f3ff 0, transparent 36%),
+    linear-gradient(135deg, #f8fbff, #edf5ff);
 }
 
-.card h3 {
-    color: #247ba0;
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 310px;
+  height: 310px;
+  right: 5%;
+  bottom: -205px;
+  border: 1px solid #9dc5f5;
+  border-radius: 50%;
+  box-shadow: 0 0 0 35px #d8eaff55, 0 0 0 70px #d8eaff35;
 }
 
-.card p,
-.card li {
-    line-height: 1.7;
-    color: #526777;
+.hero-content {
+  max-width: 850px;
+  position: relative;
+  z-index: 1;
 }
 
-.highlight {
-    background: #eaf5ff;
-    border-left: 4px solid #2196d2;
-    padding: 15px;
-    border-radius: 8px;
-    margin: 15px 0;
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--blue);
+  background: white;
+  border: 1px solid #d8e7ff;
+  border-radius: 30px;
+  padding: 7px 13px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
 }
+
+.eyebrow span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #23b88b;
+}
+
+h1 {
+  margin: 24px 0 18px;
+  color: var(--navy);
+  max-width: 780px;
+  font-size: clamp(38px, 6vw, 68px);
+  letter-spacing: -3px;
+  line-height: 1.08;
+}
+
+.gradient-text {
+  color: var(--blue);
+}
+
+.hero p {
+  max-width: 640px;
+  color: #64758f;
+  font-size: 17px;
+  margin: 0 0 28px;
+}
+
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  padding: 12px 19px;
+  font-weight: 750;
+  font-size: 13px;
+  transition: .2s ease;
+}
+
+.btn-primary {
+  color: white;
+  background: var(--blue);
+  box-shadow: 0 7px 18px #2463eb30;
+}
+
+.btn-primary:hover { background: #174cc5; transform: translateY(-2px); }
+
+.btn-light {
+  color: var(--navy);
+  background: white;
+  border-color: var(--border);
+}
+
+.btn-light:hover { border-color: #9cbcf1; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  max-width: 700px;
+  margin-top: 42px;
+}
+
+.stat {
+  padding: 16px;
+  background: #ffffffb8;
+  border: 1px solid #dce9fa;
+  border-radius: 14px;
+}
+
+.stat strong {
+  display: block;
+  color: var(--navy);
+  font-size: 23px;
+  line-height: 1.3;
+}
+
+.stat span { color: var(--muted); font-size: 11px; }
+
+section { padding: 72px 7%; }
+
+.section-head {
+  max-width: 700px;
+  margin: 0 auto 35px;
+  text-align: center;
+}
+
+.kicker {
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+}
+
+h2 {
+  color: var(--navy);
+  font-size: clamp(27px, 4vw, 39px);
+  letter-spacing: -1.2px;
+  line-height: 1.2;
+  margin: 10px 0 13px;
+}
+
+.section-head p, .muted { color: var(--muted); }
+
+.section-head p { margin: 0; font-size: 14px; }
+
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1.15fr .85fr;
+  gap: 25px;
+  align-items: stretch;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.panel {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 19px;
+  padding: 27px;
+  box-shadow: 0 8px 30px #163a6508;
+}
+
+.panel h3 { margin: 0 0 10px; color: var(--navy); font-size: 19px; }
+
+.panel p { color: var(--muted); font-size: 14px; }
 
 .formula {
-    background: #f0f8ff;
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    font-size: 20px;
-    color: #145da0;
-    font-weight: bold;
+  background: var(--navy);
+  color: white;
+  padding: 21px;
+  border-radius: 14px;
+  margin: 20px 0 12px;
+  text-align: center;
 }
 
-.steps {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
+.formula .equation { font-size: 29px; font-weight: 850; letter-spacing: 1px; }
+
+.formula small { color: #c1d6f7; font-size: 12px; }
+
+.term {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 17px 0;
 }
 
-.step {
-    background: #f4faff;
-    border: 1px solid #d7eaf7;
-    padding: 18px;
-    border-radius: 12px;
+.term-badge {
+  min-width: 43px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--sky);
+  color: var(--blue);
+  font-weight: 850;
 }
 
-.step strong {
-    color: #145da0;
+.term strong { color: var(--navy); font-size: 14px; }
+.term p { margin: 3px 0 0; font-size: 12px; }
+
+.lab-section { background: var(--pale); }
+
+.lab-shell {
+  max-width: 1100px;
+  margin: auto;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: white;
+  box-shadow: 0 15px 45px #1539650c;
 }
 
-.demo {
-    background: #f1f8ff;
-    padding: 22px;
-    border-radius: 15px;
+.lab-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 22px 25px;
+  border-bottom: 1px solid var(--border);
 }
 
-input {
-    padding: 12px;
-    width: 100px;
-    border: 1px solid #b7d5ea;
-    border-radius: 8px;
-    margin: 5px;
+.lab-top h3 { color: var(--navy); margin: 0; font-size: 18px; }
+
+.live-tag {
+  color: #168363;
+  background: #e7fbf4;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .7px;
 }
 
-button {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    background: #1976b5;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
+.lab-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 255px;
 }
 
-button:hover {
-    background: #145da0;
+.grid-area { padding: 23px; min-width: 0; }
+
+.grid-help {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  font-size: 11px;
+  color: var(--muted);
 }
 
-#result {
-    margin-top: 15px;
-    font-weight: bold;
-    color: #145da0;
+.grid-wrap {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
 
-.grid {
-    display: grid;
-    grid-template-columns: repeat(5, 55px);
-    gap: 5px;
-    justify-content: center;
-    margin-top: 20px;
+#grid {
+  display: grid;
+  grid-template-columns: repeat(20, minmax(18px, 1fr));
+  gap: 3px;
+  min-width: 410px;
+  user-select: none;
 }
 
 .cell {
-    width: 55px;
-    height: 55px;
-    border: 1px solid #a9c9df;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: white;
-    font-weight: bold;
+  aspect-ratio: 1;
+  min-width: 0;
+  border: 1px solid #dce8f6;
+  background: #f8fbff;
+  border-radius: 3px;
+  transition: background .13s ease;
 }
 
-.start {
-    background: #bde7ff;
+.cell.wall { background: #244268; border-color: #244268; }
+.cell.start { background: #1caf83; border-color: #1caf83; }
+.cell.goal { background: #ffb454; border-color: #f5a63b; }
+.cell.visited { background: #c4ddff; border-color: #b4d3fb; }
+.cell.path { background: #3478f6; border-color: #3478f6; }
+.cell.start, .cell.goal { position: relative; }
+
+.grid-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 10px;
 }
 
-.goal {
-    background: #c8f0d2;
+.legend-item { display: flex; align-items: center; gap: 6px; }
+
+.swatch { width: 10px; height: 10px; border-radius: 3px; }
+
+.controls {
+  padding: 23px;
+  background: #f9fbff;
+  border-left: 1px solid var(--border);
 }
 
-.obstacle {
-    background: #78909c;
-    color: white;
+.control-label {
+  display: block;
+  margin: 18px 0 8px;
+  font-size: 11px;
+  color: #586a84;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .8px;
 }
 
-.path {
-    background: #ffe7a8;
+.control-label:first-child { margin-top: 0; }
+
+.controls .btn { width: 100%; margin-bottom: 9px; }
+
+.btn-outline {
+  background: white;
+  border-color: var(--border);
+  color: var(--navy);
 }
 
-pre {
-    background: #eef7ff;
-    padding: 20px;
-    border-radius: 12px;
-    overflow-x: auto;
-    color: #31566e;
+.btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: white;
+  color: var(--text);
+  font-size: 12px;
 }
+
+.metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.metric {
+  padding: 12px 10px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+}
+
+.metric strong { display: block; color: var(--navy); font-size: 22px; }
+.metric span { color: var(--muted); font-size: 10px; }
+
+.status {
+  min-height: 44px;
+  padding: 12px;
+  margin-top: 14px;
+  border-radius: 10px;
+  background: #edf4ff;
+  color: #315b9a;
+  font-size: 11px;
+}
+
+.status.error { background: #fff0ed; color: #b94b38; }
+
+.tip {
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 15px;
+  line-height: 1.7;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.step-card {
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  background: white;
+  transition: .2s ease;
+}
+
+.step-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px #2463eb12;
+  border-color: #b7d0f8;
+}
+
+.step-no {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--sky);
+  color: var(--blue);
+  font-weight: 900;
+  margin-bottom: 18px;
+}
+
+.step-card h3 { font-size: 15px; color: var(--navy); margin: 0 0 9px; }
+.step-card p { color: var(--muted); font-size: 12px; margin: 0; }
+
+.compare-section { background: var(--pale); }
+
+.table-wrap {
+  max-width: 900px;
+  margin: auto;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: white;
+}
+
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 16px 19px; border-bottom: 1px solid var(--border); }
+th { background: #edf4ff; color: var(--navy); font-size: 11px; text-transform: uppercase; letter-spacing: .7px; }
+td { color: #63738b; }
+td:first-child { color: var(--navy); font-weight: 750; }
+tr:last-child td { border-bottom: 0; }
+
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 17px;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.app-card {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 23px;
+  background: white;
+}
+
+.app-icon {
+  font-size: 23px;
+  width: 49px;
+  height: 49px;
+  display: grid;
+  place-items: center;
+  background: var(--sky);
+  border-radius: 14px;
+  margin-bottom: 17px;
+}
+
+.app-card h3 { color: var(--navy); font-size: 15px; margin: 0 0 7px; }
+.app-card p { color: var(--muted); font-size: 12px; margin: 0; }
+
+.takeaway {
+  max-width: 950px;
+  margin: auto;
+  padding: 37px;
+  border-radius: 22px;
+  background: linear-gradient(125deg, #10264a, #174d91);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.takeaway::after {
+  content: "A*";
+  position: absolute;
+  right: 20px;
+  bottom: -50px;
+  font-size: 180px;
+  font-weight: 900;
+  color: #ffffff09;
+  line-height: 1;
+}
+
+.takeaway h2 { color: white; position: relative; z-index: 1; }
+.takeaway p { max-width: 680px; color: #c6d9f5; font-size: 14px; position: relative; z-index: 1; }
+
+.references {
+  max-width: 950px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.ref-card {
+  display: block;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  transition: .2s ease;
+}
+
+.ref-card:hover { border-color: #8bb7fa; background: #f8fbff; }
+.ref-card strong { display: block; color: var(--navy); font-size: 14px; }
+.ref-card span { display: block; color: var(--muted); font-size: 11px; margin-top: 5px; }
+.ref-arrow { float: right; color: var(--blue); font-size: 20px; }
 
 footer {
-    text-align: center;
-    padding: 30px;
-    border-top: 1px solid #d6e8f7;
-    color: #718797;
+  padding: 25px 7%;
+  background: #f5f8fd;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 11px;
 }
 
-@media (max-width: 700px) {
-    header h1 {
-        font-size: 35px;
-    }
+footer a { color: var(--blue); font-weight: 750; }
 
-    .steps {
-        grid-template-columns: 1fr;
-    }
+@media (max-width: 850px) {
+  nav { padding: 12px 5%; }
+  .navlinks { gap: 12px; font-size: 11px; }
+  .hero, section { padding-left: 5%; padding-right: 5%; }
+  .intro-grid { grid-template-columns: 1fr; }
+  .lab-layout { grid-template-columns: 1fr; }
+  .controls { border-left: 0; border-top: 1px solid var(--border); }
+  .steps-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+  .navlinks a:not(.nav-cta) { display: none; }
+  h1 { letter-spacing: -1.8px; }
+  .stats { gap: 7px; }
+  .stat { padding: 12px 9px; }
+  .stat strong { font-size: 19px; }
+  .stat span { font-size: 9px; }
+  .steps-grid, .app-grid, .references { grid-template-columns: 1fr; }
+  .lab-top { align-items: flex-start; }
+  .grid-area, .controls { padding: 16px; }
+  .takeaway { padding: 26px; }
+  th, td { padding: 12px; }
 }
 </style>
 </head>
 
 <body>
 
-<header>
-    <h1>🧭 A* Search on a Grid</h1>
+<nav>
+  <a class="logo" href="#home">
+    <span class="logo-mark">A*</span>
+    <span>Pathfinder<span style="color:#2463eb">.lab</span></span>
+  </a>
+  <div class="navlinks">
+    <a href="#concept">Concept</a>
+    <a href="#lab">Interactive Lab</a>
+    <a href="#applications">Applications</a>
+    <a href="#references">References</a>
+    <a class="nav-cta" href="#lab">Try A* ↗</a>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="hero-content">
+    <div class="eyebrow"><span></span> DATA STRUCTURES & AI SEARCH</div>
+    <h1>Find the smartest route with <span class="gradient-text">A* Search.</span></h1>
     <p>
-        A technical blog explaining how the A* search algorithm finds
-        efficient paths on a grid while avoiding obstacles.
+      Explore how an intelligent search algorithm finds a low-cost path through a grid,
+      avoids obstacles, and guides a search toward its destination.
     </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#lab">Launch Interactive Lab →</a>
+      <a class="btn btn-light" href="#concept">Explore the Algorithm ↓</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><strong>f(n)</strong><span>Path cost + heuristic</span></div>
+      <div class="stat"><strong>Grid</strong><span>Obstacles and routes</span></div>
+      <div class="stat"><strong>Optimal*</strong><span>With suitable conditions</span></div>
+    </div>
+  </div>
 </header>
 
-<div class="container">
+<section id="concept">
+  <div class="section-head">
+    <div class="kicker">01 / The Concept</div>
+    <h2>Search with a sense of direction.</h2>
+    <p>A* combines the cost of the route already travelled with an estimate of the distance remaining.</p>
+  </div>
 
-    <div class="card">
-        <h2>Introduction</h2>
+  <div class="intro-grid">
+    <article class="panel">
+      <h3>What is the A* algorithm?</h3>
+      <p>
+        A* (pronounced “A-star”) is an informed search algorithm used to find a least-cost
+        path from a starting point to a goal. It evaluates possible positions and prioritizes
+        those that appear most promising.
+      </p>
+      <p>
+        Unlike an uninformed search that explores without estimating the remaining distance,
+        A* uses a heuristic to guide its exploration. Its result depends on the cost model,
+        heuristic, and search implementation.
+      </p>
+      <div class="formula">
+        <div class="equation">f(n) = g(n) + h(n)</div>
+        <small>The evaluation function that guides A*</small>
+      </div>
+      <p><strong style="color:#10264a">g(n)</strong> is the cost from the start to the current node.</p>
+      <p><strong style="color:#2463eb">h(n)</strong> estimates the remaining cost from the current node to the goal.</p>
+    </article>
 
-        <p>
-            A* (pronounced A-star) is a popular path-finding algorithm
-            used to find an efficient route between a starting point
-            and a destination.
-        </p>
+    <article class="panel">
+      <h3>The three key ideas</h3>
+      <div class="term">
+        <div class="term-badge">g</div>
+        <div><strong>Cost so far</strong><p>Measures the known cost of reaching a position from the start.</p></div>
+      </div>
+      <div class="term">
+        <div class="term-badge">h</div>
+        <div><strong>Heuristic estimate</strong><p>Provides a useful estimate of the remaining distance to the destination.</p></div>
+      </div>
+      <div class="term">
+        <div class="term-badge">f</div>
+        <div><strong>Estimated total cost</strong><p>Combines the cost already paid with the estimated cost still to come.</p></div>
+      </div>
+      <p class="muted">For a four-direction grid with equal step costs, Manhattan distance is a suitable heuristic.</p>
+    </article>
+  </div>
+</section>
 
-        <p>
-            It combines the actual distance already travelled with an
-            estimated distance to the goal. This allows A* to search
-            intelligently instead of checking every possible path.
-        </p>
+<section class="lab-section" id="lab">
+  <div class="section-head">
+    <div class="kicker">02 / Interactive Demonstration</div>
+    <h2>Build a map. Find a path.</h2>
+    <p>Click empty cells to create walls, then run A* to watch the search explore and find a route.</p>
+  </div>
 
-        <div class="highlight">
-            <strong>Simple idea:</strong>
-            A* chooses the path that looks most promising based on
-            both the distance travelled and the estimated distance remaining.
-        </div>
+  <div class="lab-shell">
+    <div class="lab-top">
+      <h3>Pathfinding Simulator</h3>
+      <span class="live-tag">● LIVE DEMO</span>
     </div>
 
-    <div class="card">
-        <h2>Core Idea of A*</h2>
-
-        <p>
-            A* uses an evaluation function called <b>f(n)</b>.
-            It helps the algorithm decide which grid cell should be
-            explored next.
-        </p>
-
-        <div class="formula">
-            f(n) = g(n) + h(n)
+    <div class="lab-layout">
+      <div class="grid-area">
+        <div class="grid-help">
+          <span>20 × 12 grid · Four-direction movement</span>
+          <span>Click cells to add or remove walls</span>
         </div>
-
-        <h3>Meaning of the terms</h3>
-
-        <ul>
-            <li><b>g(n)</b> — actual cost from the starting point to the current cell.</li>
-            <li><b>h(n)</b> — estimated cost from the current cell to the goal.</li>
-            <li><b>f(n)</b> — total estimated cost of the path.</li>
-        </ul>
-    </div>
-
-    <div class="card">
-        <h2>How A* Works</h2>
-
-        <div class="steps">
-
-            <div class="step">
-                <strong>1. Start</strong>
-                <p>Begin from the starting cell.</p>
-            </div>
-
-            <div class="step">
-                <strong>2. Evaluate</strong>
-                <p>Calculate the f, g and h values.</p>
-            </div>
-
-            <div class="step">
-                <strong>3. Choose</strong>
-                <p>Select the cell with the lowest f value.</p>
-            </div>
-
-            <div class="step">
-                <strong>4. Reach Goal</strong>
-                <p>Continue until the destination is reached.</p>
-            </div>
-
+        <div class="grid-wrap"><div id="grid" aria-label="Interactive pathfinding grid"></div></div>
+        <div class="grid-legend">
+          <span class="legend-item"><i class="swatch" style="background:#19ad83"></i>Start</span>
+          <span class="legend-item"><i class="swatch" style="background:#ffb454"></i>Goal</span>
+          <span class="legend-item"><i class="swatch" style="background:#244268"></i>Wall</span>
+          <span class="legend-item"><i class="swatch" style="background:#c4ddff"></i>Explored</span>
+          <span class="legend-item"><i class="swatch" style="background:#3478f6"></i>Final path</span>
         </div>
-    </div>
+      </div>
 
-    <div class="card">
-        <h2>Obstacles and Path Finding</h2>
+      <aside class="controls">
+        <label class="control-label" for="heuristic">Heuristic function</label>
+        <select id="heuristic">
+          <option value="manhattan">Manhattan distance</option>
+          <option value="euclidean">Euclidean distance</option>
+        </select>
 
-        <p>
-            A grid can contain obstacles that cannot be crossed.
-            A* considers these obstacles while searching for a route.
-        </p>
+        <label class="control-label" for="density">Obstacle density</label>
+        <select id="density">
+          <option value="light">Light</option>
+          <option value="medium" selected>Medium</option>
+          <option value="heavy">Heavy</option>
+        </select>
 
-        <p>
-            Instead of moving through blocked cells, the algorithm
-            explores other available cells and tries to find a valid
-            path to the destination.
-        </p>
+        <span class="control-label">Run the simulation</span>
+        <button class="btn btn-primary" id="runBtn">▶ Run A* Search</button>
+        <button class="btn btn-outline" id="randomBtn">↻ Generate Obstacles</button>
+        <button class="btn btn-outline" id="clearBtn">⌫ Clear Obstacles</button>
+        <button class="btn btn-outline" id="resetBtn">⟲ Reset Grid</button>
 
-        <div class="grid">
-
-            <div class="cell start">S</div>
-            <div class="cell path">→</div>
-            <div class="cell path">→</div>
-            <div class="cell obstacle">X</div>
-            <div class="cell"> </div>
-
-            <div class="cell"> </div>
-            <div class="cell obstacle">X</div>
-            <div class="cell path">↓</div>
-            <div class="cell"> </div>
-            <div class="cell"> </div>
-
-            <div class="cell"> </div>
-            <div class="cell obstacle">X</div>
-            <div class="cell path">↓</div>
-            <div class="cell"> </div>
-            <div class="cell"> </div>
-
-            <div class="cell"> </div>
-            <div class="cell"> </div>
-            <div class="cell path">→</div>
-            <div class="cell path">→</div>
-            <div class="cell goal">G</div>
-
+        <div class="metrics">
+          <div class="metric"><strong id="visitedCount">0</strong><span>Nodes explored</span></div>
+          <div class="metric"><strong id="pathCount">0</strong><span>Path steps</span></div>
         </div>
 
-        <div class="highlight">
-            <b>S</b> = Start &nbsp;&nbsp;
-            <b>G</b> = Goal &nbsp;&nbsp;
-            <b>X</b> = Obstacle
+        <div class="status" id="status" role="status" aria-live="polite">
+          Ready. Add obstacles or run A* to begin.
         </div>
+        <p class="tip">Tip: Create a wall across the grid and leave a gap. Run the algorithm to see how it navigates around the obstacle.</p>
+      </aside>
     </div>
+  </div>
+</section>
 
-    <div class="card">
-        <h2>Manhattan Distance</h2>
+<section id="how">
+  <div class="section-head">
+    <div class="kicker">03 / Behind the Search</div>
+    <h2>How A* finds the route.</h2>
+    <p>The algorithm repeatedly selects a promising node and updates the best known routes to its neighbours.</p>
+  </div>
 
-        <p>
-            When movement is restricted to horizontal and vertical
-            directions, Manhattan distance can be used as the heuristic.
-        </p>
+  <div class="steps-grid">
+    <article class="step-card">
+      <div class="step-no">01</div>
+      <h3>Initialize</h3>
+      <p>Start at the initial node and calculate its estimated total cost using g(n) + h(n).</p>
+    </article>
+    <article class="step-card">
+      <div class="step-no">02</div>
+      <h3>Select</h3>
+      <p>Choose the open node with the smallest estimated total cost.</p>
+    </article>
+    <article class="step-card">
+      <div class="step-no">03</div>
+      <h3>Explore</h3>
+      <p>Inspect valid neighbours, avoid walls, and update their best known costs and parent links.</p>
+    </article>
+    <article class="step-card">
+      <div class="step-no">04</div>
+      <h3>Reconstruct</h3>
+      <p>When the goal is reached, follow parent links backwards to reconstruct the path.</p>
+    </article>
+  </div>
+</section>
 
-        <div class="formula">
-            h(n) = |x₁ − x₂| + |y₁ − y₂|
-        </div>
+<section class="compare-section" id="comparison">
+  <div class="section-head">
+    <div class="kicker">04 / Algorithm Comparison</div>
+    <h2>A* versus other search methods.</h2>
+    <p>Different search algorithms make different trade-offs in guidance, exploration, and memory.</p>
+  </div>
 
-        <p>
-            It calculates the distance between two points by adding
-            the horizontal and vertical differences.
-        </p>
-    </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Algorithm</th><th>Uses heuristic?</th><th>Search behaviour</th><th>Typical strength</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Breadth-First Search</td><td>No</td><td>Explores by depth level</td><td>Shortest path with equal edge costs</td></tr>
+        <tr><td>Dijkstra's Algorithm</td><td>No</td><td>Prioritizes cost so far</td><td>Least-cost path with non-negative edge costs</td></tr>
+        <tr><td>Greedy Best-First</td><td>Yes</td><td>Prioritizes estimated distance</td><td>Often heads toward the goal quickly</td></tr>
+        <tr><td>A* Search</td><td>Yes</td><td>Combines known and estimated cost</td><td>Can find an optimal path with suitable conditions</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 
-    <div class="card">
-        <h2>🧮 Interactive Manhattan Distance Demo</h2>
+<section id="applications">
+  <div class="section-head">
+    <div class="kicker">05 / Real-World Applications</div>
+    <h2>Where does A* make a difference?</h2>
+    <p>Search algorithms are useful whenever a system needs to move through a set of possible states.</p>
+  </div>
 
-        <p>
-            Enter the coordinates of two points and calculate their
-            Manhattan distance.
-        </p>
+  <div class="app-grid">
+    <article class="app-card">
+      <div class="app-icon">🎮</div>
+      <h3>Video Games</h3>
+      <p>Helps non-player characters navigate maps, move around walls, and reach targets.</p>
+    </article>
+    <article class="app-card">
+      <div class="app-icon">🤖</div>
+      <h3>Robotics</h3>
+      <p>Supports route planning for robots navigating environments with obstacles.</p>
+    </article>
+    <article class="app-card">
+      <div class="app-icon">🗺️</div>
+      <h3>Maps & Navigation</h3>
+      <p>Illustrates how route planners search for low-cost routes through connected locations.</p>
+    </article>
+    <article class="app-card">
+      <div class="app-icon">📦</div>
+      <h3>Warehouse Systems</h3>
+      <p>Can help plan movement for automated carts and robots around restricted areas.</p>
+    </article>
+    <article class="app-card">
+      <div class="app-icon">🧩</div>
+      <h3>Puzzle Solving</h3>
+      <p>Searches possible states in puzzles using a heuristic to estimate distance from a solution.</p>
+    </article>
+    <article class="app-card">
+      <div class="app-icon">🧠</div>
+      <h3>Artificial Intelligence</h3>
+      <p>Demonstrates informed search: using knowledge about the goal to guide decision-making.</p>
+    </article>
+  </div>
+</section>
 
-        <div class="demo">
+<section>
+  <div class="takeaway">
+    <div class="kicker" style="color:#8dc4ff">THE BIG IDEA</div>
+    <h2>Search intelligently, not blindly.</h2>
+    <p>
+      A* shows how combining the cost of past decisions with an estimate of future cost
+      can guide a search toward a useful solution. The quality of its heuristic and the
+      structure of the problem both matter.
+    </p>
+    <a class="btn btn-light" href="#lab">Experiment with the grid ↑</a>
+  </div>
+</section>
 
-            <label>X₁:</label>
-            <input type="number" id="x1" value="1">
+<section id="references">
+  <div class="section-head">
+    <div class="kicker">06 / Further Learning</div>
+    <h2>Continue exploring.</h2>
+    <p>Use these resources to review the algorithm and understand how it works in practice.</p>
+  </div>
 
-            <label>Y₁:</label>
-            <input type="number" id="y1" value="1">
-
-            <br>
-
-            <label>X₂:</label>
-            <input type="number" id="x2" value="4">
-
-            <label>Y₂:</label>
-            <input type="number" id="y2" value="5">
-
-            <br><br>
-
-            <button onclick="calculateDistance()">
-                Calculate Distance
-            </button>
-
-            <div id="result"></div>
-
-        </div>
-    </div>
-
-    <div class="card">
-        <h2>Simple Example</h2>
-
-        <p>
-            Suppose the starting point is at (1,1) and the destination
-            is at (4,5).
-        </p>
-
-        <pre>
-h(n) = |1 - 4| + |1 - 5|
-
-h(n) = 3 + 4
-
-h(n) = 7
-        </pre>
-
-        <p>
-            Therefore, the Manhattan distance between the two points is 7.
-        </p>
-    </div>
-
-    <div class="card">
-        <h2>Applications of A*</h2>
-
-        <ul>
-            <li>🎮 Video game path finding</li>
-            <li>🤖 Robot navigation</li>
-            <li>🗺️ Route planning</li>
-            <li>🚗 Autonomous vehicle navigation</li>
-            <li>📍 Grid-based navigation systems</li>
-        </ul>
-    </div>
-
-    <div class="card">
-        <h2>Advantages</h2>
-
-        <ul>
-            <li>Finds efficient paths between two points.</li>
-            <li>Can work around obstacles.</li>
-            <li>Uses a heuristic to guide the search.</li>
-            <li>Usually explores fewer unnecessary paths than uninformed search.</li>
-            <li>Widely used in navigation and games.</li>
-        </ul>
-    </div>
-
-    <div class="card">
-        <h2>Conclusion</h2>
-
-        <p>
-            A* is an important search algorithm for path finding and
-            obstacle avoidance. By combining the actual cost with an
-            estimated cost, it can efficiently search for a suitable
-            path from a starting point to a destination.
-        </p>
-
-        <p>
-            Its use in games, robotics, navigation and intelligent
-            systems shows how search algorithms can solve practical
-            real-world problems.
-        </p>
-    </div>
-
-</div>
+  <div class="references">
+    <a class="ref-card" href="https://en.wikipedia.org/wiki/A*_search_algorithm" target="_blank" rel="noopener noreferrer">
+      <span class="ref-arrow">↗</span>
+      <strong>A* Search Algorithm</strong>
+      <span>Background, properties, and algorithm details · Wikipedia</span>
+    </a>
+    <a class="ref-card" href="https://www.redblobgames.com/pathfinding/a-star/introduction.html" target="_blank" rel="noopener noreferrer">
+      <span class="ref-arrow">↗</span>
+      <strong>Introduction to A* Pathfinding</strong>
+      <span>Visual explanations and practical pathfinding concepts · Red Blob Games</span>
+    </a>
+  </div>
+</section>
 
 <footer>
-    💙 Algorithms Blog · A* Search on a Grid
+  <span>© 2026 Pathfinder.lab · Student Technical Blog</span>
+  <span>Built to explore search algorithms with <a href="#home">curiosity ↗</a></span>
 </footer>
 
 <script>
+(() => {
+  const ROWS = 12;
+  const COLS = 20;
+  const START = { r: 5, c: 2 };
+  const GOAL = { r: 5, c: 17 };
 
-function calculateDistance() {
+  const gridElement = document.getElementById("grid");
+  const statusElement = document.getElementById("status");
+  const visitedElement = document.getElementById("visitedCount");
+  const pathElement = document.getElementById("pathCount");
+  const runButton = document.getElementById("runBtn");
 
-    let x1 = Number(document.getElementById("x1").value);
-    let y1 = Number(document.getElementById("y1").value);
+  let walls = new Set();
+  let visited = new Set();
+  let path = new Set();
+  let running = false;
+  let animationToken = 0;
 
-    let x2 = Number(document.getElementById("x2").value);
-    let y2 = Number(document.getElementById("y2").value);
+  const key = (r, c) => `${r},${c}`;
+  const isStart = (r, c) => r === START.r && c === START.c;
+  const isGoal = (r, c) => r === GOAL.r && c === GOAL.c;
 
-    let distance =
-        Math.abs(x1 - x2) +
-        Math.abs(y1 - y2);
+  function setStatus(message, error = false) {
+    statusElement.textContent = message;
+    statusElement.classList.toggle("error", error);
+  }
 
-    document.getElementById("result").innerHTML =
-        "Manhattan Distance = " + distance;
-}
+  function clearResults() {
+    animationToken++;
+    running = false;
+    visited.clear();
+    path.clear();
+    visitedElement.textContent = "0";
+    pathElement.textContent = "0";
+    runButton.disabled = false;
+    runButton.textContent = "▶ Run A* Search";
+    render();
+  }
 
+  function render() {
+    gridElement.innerHTML = "";
+    const fragment = document.createDocumentFragment();
+
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const k = key(r, c);
+        const cell = document.createElement("button");
+        cell.type = "button";
+        cell.className = "cell";
+        cell.setAttribute("aria-label", `Row ${r + 1}, column ${c + 1}`);
+
+        if (walls.has(k)) cell.classList.add("wall");
+        if (visited.has(k)) cell.classList.add("visited");
+        if (path.has(k)) cell.classList.add("path");
+
+        if (isStart(r, c)) {
+          cell.className = "cell start";
+          cell.textContent = "S";
+          cell.setAttribute("aria-label", "Start point");
+        } else if (isGoal(r, c)) {
+          cell.className = "cell goal";
+          cell.textContent = "G";
+          cell.setAttribute("aria-label", "Goal point");
+        }
+
+        cell.addEventListener("click", () => {
+          if (running || isStart(r, c) || isGoal(r, c)) return;
+          const clickedKey = key(r, c);
+          if (walls.has(clickedKey)) walls.delete(clickedKey);
+          else walls.add(clickedKey);
+          clearResults();
+          setStatus("Map updated. Run A* to search for a route.");
+        });
+
+        fragment.appendChild(cell);
+      }
+    }
+    gridElement.appendChild(fragment);
+  }
+
+  function heuristic(a, b) {
+    const dx = Math.abs(a.r - b.r);
+    const dy = Math.abs(a.c - b.c);
+    if (document.getElementById("heuristic").value === "euclidean") {
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+    return dx + dy;
+  }
+
+  function findPath() {
+    const start = { ...START };
+    const goal = { ...GOAL };
+    const startKey = key(start.r, start.c);
+    const goalKey = key(goal.r, goal.c);
+
+    const open = [start];
+    const openKeys = new Set([startKey]);
+    const cameFrom = new Map();
+    const gScore = new Map([[startKey, 0]]);
+    const fScore = new Map([[startKey, heuristic(start, goal)]]);
+    const explored = [];
+    const closed = new Set();
+
+    const directions = [
+      { r: -1, c: 0 },
+      { r: 1, c: 0 },
+      { r: 0, c: -1 },
+      { r: 0, c: 1 }
+    ];
+
+    while (open.length > 0) {
+      // Select the node with the lowest estimated total cost.
+      let bestIndex = 0;
+      for (let i = 1; i < open.length; i++) {
+        const currentF = fScore.get(key(open[i].r, open[i].c)) ?? Infinity;
+        const bestF = fScore.get(key(open[bestIndex].r, open[bestIndex].c)) ?? Infinity;
+        if (currentF < bestF) bestIndex = i;
+      }
+
+      const current = open.splice(bestIndex, 1)[0];
+      const currentKey = key(current.r, current.c);
+      openKeys.delete(currentKey);
+
+      if (closed.has(currentKey)) continue;
+      closed.add(currentKey);
+      explored.push(currentKey);
+
+      if (currentKey === goalKey) {
+        const route = [];
+        let step = goalKey;
+        while (step) {
+          route.push(step);
+          if (step === startKey) break;
+          step = cameFrom.get(step);
+        }
+        route.reverse();
+        return { explored, route, found: true };
+      }
+
+      for (const direction of directions) {
+        const next = {
+          r: current.r + direction.r,
+          c: current.c + direction.c
+        };
+
+        if (next.r < 0 || next.r >= ROWS || next.c < 0 || next.c >= COLS) continue;
+
+        const nextKey = key(next.r, next.c);
+        if (walls.has(nextKey) || closed.has(nextKey)) continue;
+
+        const tentativeG = (gScore.get(currentKey) ?? Infinity) + 1;
+
+        if (tentativeG < (gScore.get(nextKey) ?? Infinity)) {
+          cameFrom.set(nextKey, currentKey);
+          gScore.set(nextKey, tentativeG);
+          fScore.set(nextKey, tentativeG + heuristic(next, goal));
+
+          if (!openKeys.has(nextKey)) {
+            open.push(next);
+            openKeys.add(nextKey);
+          }
+        }
+      }
+    }
+
+    return { explored, route: [], found: false };
+  }
+
+  async function animateSearch(result, token) {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    for (let i = 0; i < result.explored.length; i++) {
+      if (token !== animationToken) return;
+      visited.add(result.explored[i]);
+      visitedElement.textContent = String(visited.size);
+
+      // Render in small batches for a smooth, responsive animation.
+      if (i % 4 === 0 || i === result.explored.length - 1) {
+        render();
+        await delay(12);
+      }
+    }
+
+    if (token !== animationToken) return;
+
+    if (result.found) {
+      path = new Set(result.route);
+      pathElement.textContent = String(Math.max(0, result.route.length - 1));
+      render();
+      setStatus(`Path found! ${result.route.length - 1} steps from start to goal.`);
+    } else {
+      render();
+      setStatus("No route found. Remove some obstacles and try again.", true);
+    }
+
+    running = false;
+    runButton.disabled = false;
+    runButton.textContent = "▶ Run A* Search";
+  }
+
+  runButton.addEventListener("click", () => {
+    if (running) return;
+    clearResults();
+
+    running = true;
+    runButton.disabled = true;
+    runButton.textContent = "Searching…";
+    setStatus("A* is exploring the grid and comparing estimated costs.");
+
+    const token = animationToken;
+    const result = findPath();
+    animateSearch(result, token);
+  });
+
+  document.getElementById("randomBtn").addEventListener("click", () => {
+    if (running) return;
+    walls.clear();
+    visited.clear();
+    path.clear();
+
+    const density = document.getElementById("density").value;
+    const probability = density === "light" ? 0.12 : density === "heavy" ? 0.32 : 0.22;
+
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (isStart(r, c) || isGoal(r, c)) continue;
+        if (Math.random() < probability) walls.add(key(r, c));
+      }
+    }
+
+    clearResults();
+    setStatus("New obstacle map generated. Run A* to find a route.");
+  });
+
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    if (running) return;
+    walls.clear();
+    clearResults();
+    setStatus("All obstacles cleared. The grid is ready.");
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    walls.clear();
+    clearResults();
+    setStatus("Grid reset. Start and goal are back in their original positions.");
+  });
+
+  document.getElementById("heuristic").addEventListener("change", () => {
+    if (!running) {
+      clearResults();
+      setStatus("Heuristic changed. Run A* to compare the search.");
+    }
+  });
+
+  document.getElementById("density").addEventListener("change", () => {
+    setStatus("Obstacle density updated. Generate obstacles to apply it.");
+  });
+
+  render();
+})();
 </script>
 
 </body>
