@@ -885,7 +885,12 @@ footer a { color: var(--blue); font-weight: 750; }
       can guide a search toward a useful solution. The quality of its heuristic and the
       structure of the problem both matter.
     </p>
-    <a class="btn btn-light" href="#lab">Experiment with the grid ↑</a>
+    
+<a class="btn btn-light" href="#lab"
+   onclick="document.getElementById('lab').scrollIntoView({behavior:'smooth',block:'start'}); return false;">
+   Experiment with the grid ↑
+</a>
+
   </div>
 </section>
 
